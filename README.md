@@ -10,4 +10,41 @@ Ultimately, this is meant to be a data cleaning tool for incoming acoustic data
 that is more generalizable, and requires less custom editing, and more analysis 
 of results!
 
+# File & Test setup
+Explain the different test cases here
+
+# Audio Handler instructions
+For the preprocessing and augmentation of the data
+
+# Keras training conditions and flags here
+
+# Notebooks for visualization here
+
+# References and Appendix?
+
+
+
+
+
 Created by: Andrew Bartels, MS Cal State, Fullerton
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
