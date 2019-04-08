@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
-# In[1]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -51,9 +49,12 @@ def main():
     os.chdir(path)
     TestSectionCalibartion_dir = 'EGME597_AB/RAWDATA/TSC'
     MomentumWakeSheilding_dir = 'EGME597_AB/RAWDATA/MWS'
-    calibration_dir = 'EGME597_AB/CALIBRATION/sn442'
+#    calibration_dir = 'EGME597_AB/CALIBRATION/sn442'
     AH = AudioHandler(TestSectionCalibartion_dir, MomentumWakeSheilding_dir)
     AH.FileSort()
 
 if __name__ == "__main__":
     main()
+
+
+
