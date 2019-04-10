@@ -99,8 +99,28 @@ for i in range(0, len(dat_fileList)-590):
 time = np.linspace(0,NS,NS)
 
 
-micGeoFile = 'C:/Users/andre/dev/Aero_ML/mic_array.xml'
-mg = ac.MicGeom( from_file=micGeoFile )
+#def cbf(nphones, sound_speed, spacing, look_dirs, samples, phone_data, Fs):
+#    '''function to do conventional beamforming'''
+#    # allocate space to put data
+#    bf_data = np.zeros((samples, len(look_dirs)))
+#    
+#    # find time lags between phones and the bf matrix
+#    time_delays = np.matrix( (spacing/sound_speed))
+#    fft_freqs = np.matrix(np.linspace( 0, Fs, samples, endpoint=False)).transpose()
+#    print(fft_freqs.shape)
+#    print(time_delays.shape)
+#    
+#    for ind, direction in enumerate(look_dirs):
+#        spacial_filt = 1.0/nphones*np.exp(-2j*np.pi*fft_freqs*time_delays*np.cos(direction))
+#    
+#    # fft the data, and let's beamform.
+#    bf_data[:,ind] = np.sum(np.fft.irfft( np.fft.fft(phone_data,samples,0)*np.array(spacial_filt), samples, 0), 1)
+#    return bf_data
+#
+
+    
+#micGeoFile = 'C:/Users/andre/dev/Aero_ML/mic_array.xml'
+#mg = ac.MicGeom(from_file=micGeoFile)
 
 # =============================================================================
 # This is the MATLAB way to do it.
