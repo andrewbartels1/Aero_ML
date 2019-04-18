@@ -30,26 +30,33 @@ home = expanduser("~")
 
 
 filename = 'TSC202.hdf5'
-folderPath = 'C:/Users/andre/Dropbox (CSU Fullerton)/EGME597_AB/ML_DATA/'
+folderPath = 'C:/Users/andrewbartels1/Dropbox (CSU Fullerton)/EGME597_AB/ML_DATA/'
 fileType = '*.hdf5'
 
 
 #    fileList = glob.glob(folderPath + fileType)
 file = folderPath + filename
-f = h5py.File(file)
+f = h5py.File(file, 'r')
 
 key_list = list(f)
 
-RawPressure = f[key_list[0]][:]
-CleanedAcousticPressure = f[key_list[1]][:]
+CleanedAcousticPressure = f[key_list[0]][:]
+RawPressure = f[key_list[1]][:]
 SmSpectrum = f[key_list[2]][:]
-
-#take file names, decode and put into list
 field = f[key_list[3]][:]
 field = [i.decode('utf-8') for i in field]
 
-data = [RawPressure, CleanedAcousticPressure, SmSpectrum]
+# Now, the next thing on the list is to creat a csv file with all the data and 
+# label it with wall noise, or noise of object.
 
+data_dict = {key_list[3]: field,
+             key_list[0]: list(CleanedAcousticPressure),
+             key_list[1]: list(RawPressure),
+             key_list[2]: list(SmSpectrum),
+             'noiseFlag': np.ones(CleanedAcousticPressure.shape[0])
+        }
+
+df = pd.DataFrame(data_dict, columns=key_list)
 
 # =============================================================================
 # list[dicts_of_all_hdf5_files]
@@ -69,3 +76,4 @@ data = [RawPressure, CleanedAcousticPressure, SmSpectrum]
 
 
 #print('data labeled and processed')
+toc()
