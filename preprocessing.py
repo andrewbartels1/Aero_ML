@@ -47,7 +47,7 @@ MicArrayElements = 7
 arraySpacing = 0.00858 # Array spacing (cm)
 
 filename = 'MWS203.hdf5'
-folderPath = 'C:/Users/andre/Dropbox (CSU Fullerton)/EGME597_AB/ML_DATA/'
+folderPath = 'C:/Users/andrewbartels1/Dropbox (CSU Fullerton)/EGME597_AB/ML_DATA/'
 fileType = '*.hdf5'
 
 
@@ -82,16 +82,16 @@ def normalize_complex_arr(a):
     a_oo = a - a.real.min() - 1j*a.imag.min() # origin offsetted
     return a_oo/np.abs(a_oo).max()
 
-def PlotPressure(timeArray, SampleRate):
-    f, t, Sxx = signal.spectrogram(timeArray, SampleRate)
-    plt.pcolormesh(t, f, Sxx)
-    plt.ylabel('Frequency [Hz]')
-    axes = plt.axes()
-    axes.set_ylim([0, 1])
-    plt.xlabel('Time [sec]')
-    plt.show()
-
-PlotPressure(df[key_list[0]][0],SampleRate=2048)    
+#def PlotPressure(timeArray, SampleRate):
+#    f, t, Sxx = signal.spectrogram(timeArray, SampleRate)
+#    plt.pcolormesh(t, f, Sxx)
+#    plt.ylabel('Frequency [Hz]')
+#    axes = plt.axes()
+#    axes.set_ylim([0, 1])
+#    plt.xlabel('Time [sec]')
+#    plt.show()
+#
+#PlotPressure(df[key_list[0]][0],SampleRate=2048)    
 
 # =============================================================================
 # list[dicts_of_all_hdf5_files]
@@ -102,9 +102,9 @@ PlotPressure(df[key_list[0]][0],SampleRate=2048)
 # =============================================================================
 
 #data_dict = dict(zip(field, data))
-
-
-
+#
+#fig, ax = plt.subplots(figsize=(5, 3))
+#Pxx, freqs, bins, im = ax1.specgram(, NFFT=NFFT, Fs=NFF, noverlap=900)
 
 
 
