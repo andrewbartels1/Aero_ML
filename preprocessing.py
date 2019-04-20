@@ -17,12 +17,13 @@ tic()
 
 import os
 import h5py
+import matplotlib
 import glob
 import numpy as np
 import pandas as pd
 import scipy as sp
 import scipy.interpolate as spinterp
-from sklearn.preprocessing import normalize
+from sklearn import preprocessing 
 from scipy import signal
 from sklearn.decomposition import FastICA, PCA
 import matplotlib.pyplot as plt
@@ -47,7 +48,7 @@ MicArrayElements = 7
 arraySpacing = 0.00858 # Array spacing (cm)
 
 filename = 'MWS203.hdf5'
-folderPath = 'C:/Users/andrewbartels1/Dropbox (CSU Fullerton)/EGME597_AB/ML_DATA/'
+folderPath = home + '/Dropbox (CSU Fullerton)/EGME597_AB/ML_DATA/'
 fileType = '*.hdf5'
 
 
@@ -82,16 +83,12 @@ def normalize_complex_arr(a):
     a_oo = a - a.real.min() - 1j*a.imag.min() # origin offsetted
     return a_oo/np.abs(a_oo).max()
 
-#def PlotPressure(timeArray, SampleRate):
-#    f, t, Sxx = signal.spectrogram(timeArray, SampleRate)
-#    plt.pcolormesh(t, f, Sxx)
-#    plt.ylabel('Frequency [Hz]')
-#    axes = plt.axes()
-#    axes.set_ylim([0, 1])
-#    plt.xlabel('Time [sec]')
-#    plt.show()
-#
-#PlotPressure(df[key_list[0]][0],SampleRate=2048)    
+
+#Normalize audio data
+Std_CleanedAcousticPressure = preprocessing.normalize(CleanedAcousticPressure)
+
+# Separate out all signals from the raw microphone pressures
+
 
 # =============================================================================
 # list[dicts_of_all_hdf5_files]
@@ -102,13 +99,14 @@ def normalize_complex_arr(a):
 # =============================================================================
 
 #data_dict = dict(zip(field, data))
-#
-#fig, ax = plt.subplots(figsize=(5, 3))
-#Pxx, freqs, bins, im = ax1.specgram(, NFFT=NFFT, Fs=NFF, noverlap=900)
 
-
-
-
+# Plots spectogram with lots of overlap 
+fig, ax = plt.subplots(nrows=1)
+#plt.specgram(CleanedAcousticPressure[0],Fs=sampleRate, noverlap=200)
+Pxx, freqs, bins, im = ax.specgram(CleanedAcousticPressure[0], Fs=sampleRate, noverlap=200)
+plt.xlabel('Samples')
+plt.ylabel('Normalized Frequency')
+plt.show()
 
 #print('data labeled and processed')
 toc()
