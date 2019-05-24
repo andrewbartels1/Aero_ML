@@ -67,7 +67,6 @@ field = [i.decode('utf-8') for i in field]
 # Now, the next thing on the list is to creat a csv file with all the data and 
 # label it with wall noise, or noise of object.
 
-data_dict = {key_list[3]: field,
              key_list[0]: list(CleanedAcousticPressure),
              'noiseFlag': np.ones(CleanedAcousticPressure.shape[0])
         }
