@@ -66,12 +66,13 @@ field = [i.decode('utf-8') for i in field]
 
 # Now, the next thing on the list is to creat a csv file with all the data and 
 # label it with wall noise, or noise of object.
-
+data_dict = {key_list[3]: field,
              key_list[0]: list(CleanedAcousticPressure),
-             'noiseFlag': np.ones(CleanedAcousticPressure.shape[0])
-        }
-
-df = pd.DataFrame(data_dict, columns=key_list)
+             key_list[1]: list(RawPressure),
+             key_list[2]: list(SmSpectrum),
+             }
+keyList1 = [key_list[3],key_list[0],key_list[1],key_list[2]]
+df = pd.DataFrame(data_dict, columns=keyList1)
 
 print(df[key_list[0]].shape)
 

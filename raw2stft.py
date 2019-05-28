@@ -134,20 +134,29 @@ def saveSpecPlots(DatListExist, MicNum,PlotDirectory='RawSTFTPlots'):
 # csv/pandas datafrome? or numpy array?
 # =============================================================================
 
-def hdf5_to_spec(hdf5fullpath, fileType='*.hdf5',):
+def hdf5_to_spec(hdf5fullpath, fileType='.hdf5'):
     '''This takes the hdf5 file that is produced in MATLAB and imports the field (file name)
     Cleaned Acoustic Pressure, Raw Pressure, and the SmSpectrum (smoothed spectrum)
     then plots onto a spectogram and saves as a png'''
-    hdfList = glob.glob(hdf5fullpath)
+    hdfFileList = [f for f in os.listdir(hdf5fullpath) if f.endswith(fileType)]
     
+    
+    
+    
+    
+    return hdfFileList
 
 
 
 
-folderPath = home + '\\Dropbox (CSU Fullerton)\\EGME597_AB\\RAWDATA\\MWS'
+folderPath = home + '\\Dropbox (CSU Fullerton)\\EGME597_AB\\RAWDATA\\TSC'
+
+hdf5fullpath = 'C:\\Users\\andre\\Dropbox (CSU Fullerton)\\EGME597_AB\\ML_DATA'
+
 fileList, DatList, DatListExist = read_raw_microphone_data(folderPath)
-saveSpecPlots(DatListExist=True, MicNum=1)
-
+print(DatListExist)
+saveSpecPlots(DatListExist, MicNum=1)
+hdfFileList = hdf5_to_spec(hdf5fullpath)
 
 toc()
 
