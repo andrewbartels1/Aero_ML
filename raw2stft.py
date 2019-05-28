@@ -72,10 +72,9 @@ def read_raw_microphone_data(folderPath, fileType='.dat'):
     
     DatList = [np.loadtxt(os.path.join(folderPath, dat_file)) for dat_file in fileList]
     DatList = np.array(DatList)    
-#    path = home + '/Dropbox (CSU Fullerton)/EGME597_AB' 
-#    os.chdir(path)
-#    
-    return fileList, DatList
+    DatListExist = True
+    print('Raw .dat files read in')
+    return fileList, DatList, DatListExist
 
 #    
 #def datfiles_to_csv():
@@ -110,20 +109,24 @@ def plotstft(rawdata, samplerate=48000, binsize=2**10, plotpath=None, colormap="
         plt.show()
         
     plt.clf()
-    
-folderPath = home + '\\Dropbox (CSU Fullerton)\\EGME597_AB\\RAWDATA\\MWS'
-fileList, DatList = read_raw_microphone_data(folderPath)
 
-for i in range(0, len(DatList)-337):
-    name = fileList[i][:9]
-    name1 = name[0] + '_1'
-    name2 = name[0] + '_2'
-    plotName =  home +'\\dev\\rawMicStftPlots' + name1
-    plt.specgram(DatList[i, :, 1], cmap='jet', Fs=48000)
-    plt.savefig(plotName)
+def saveSpecPlots(DatListExist, MicNum,PlotDirectory='RawSTFTPlots'):
+    if DatListExist == True:
+        if not os.path.exists(PlotDirectory):
+            os.mkdir(PlotDirectory)
+            print("Directory " , PlotDirectory ,  " Created ")
     
-toc()
-
+        else:    
+            print("Directory " , PlotDirectory ,  " already exists")
+        
+    for i in range(0, len(DatList)):
+        name = fileList[i][:9]+ '_{}_{}'.format(MicNum, i)
+        plotName =  os.getcwd() + '\\'+ PlotDirectory +'\\' + name
+        print(plotName)
+        plt.specgram(DatList[i, :, MicNum], cmap='jet', Fs=48000)
+        plt.title(name)
+        plt.savefig(plotName)
+        plt.close()
 # =============================================================================
 # The next thing to do would be to import all the processed .hdf5 files from MATLAB 
 # and sync up the raw first and last microphone (raw) signal with the processed
@@ -141,10 +144,12 @@ def hdf5_to_spec(hdf5fullpath, fileType='*.hdf5',):
 
 
 
+folderPath = home + '\\Dropbox (CSU Fullerton)\\EGME597_AB\\RAWDATA\\MWS'
+fileList, DatList, DatListExist = read_raw_microphone_data(folderPath)
+saveSpecPlots(DatListExist=True, MicNum=1)
 
 
-
-
+toc()
 
 
 
