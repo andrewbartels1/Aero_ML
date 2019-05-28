@@ -100,7 +100,7 @@ def plotstft(rawdata, samplerate=48000, binsize=2**10, plotpath=None, colormap="
     plt.ylim([0, freqbins])
 
     xlocs = np.float32(np.linspace(0, timebins-1, 5))
-    plt.xticks(xlocs, ["%.02f" % l for l in ((xlocs*len(samples)/timebins)+(0.5*binsize))/samplerate])
+    plt.xticks(xlocs, ["%.02f" % l for l in ((xlocs*len(rawdata)/timebins)+(0.5*binsize))/samplerate])
     ylocs = np.int16(np.round(np.linspace(0, freqbins-1, 10)))
     plt.yticks(ylocs, ["%.02f" % freq[i] for i in ylocs])
     
@@ -114,8 +114,14 @@ def plotstft(rawdata, samplerate=48000, binsize=2**10, plotpath=None, colormap="
 folderPath = home + '\\Dropbox (CSU Fullerton)\\EGME597_AB\\RAWDATA\\MWS'
 fileList, DatList = read_raw_microphone_data(folderPath)
 
-plotstft(DatList[0][:,1])
-plt.specgram(DatList[0][:,1], cmap='jet', Fs=48000)
+for i in range(0, len(DatList)-337):
+    name = fileList[i][:9]
+    name1 = name[0] + '_1'
+    name2 = name[0] + '_2'
+    plotName =  home +'\\dev\\rawMicStftPlots' + name1
+    plt.specgram(DatList[i, :, 1], cmap='jet', Fs=48000)
+    plt.savefig(plotName)
+    
 toc()
 
 # =============================================================================
@@ -124,6 +130,33 @@ toc()
 # (finalized) signal where is is then batch fed into the model with (research this)
 # csv/pandas datafrome? or numpy array?
 # =============================================================================
+
+def hdf5_to_spec(hdf5fullpath, fileType='*.hdf5',):
+    '''This takes the hdf5 file that is produced in MATLAB and imports the field (file name)
+    Cleaned Acoustic Pressure, Raw Pressure, and the SmSpectrum (smoothed spectrum)
+    then plots onto a spectogram and saves as a png'''
+    hdfList = glob.glob(hdf5fullpath)
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
