@@ -73,48 +73,48 @@ tic
 %
 %   ---------------------------------------------------------------------------
 %%   Define data files
-    casename     = 'MWS202';                    %  casename for data-processing
-    datDirectory = 'C:\Users\andrewbartels1\Dropbox (CSU Fullerton)\EGME597_AB\RAWDATA\MWS\';              %  rawdata directory
-    fileList = glob('../RAWDATA/MWS/*.dat');
+    casename     = 'ALL';                    %  casename for data-processing
+    datDirectory = 'C:\Users\andre\Dropbox (CSU Fullerton)\EGME597_AB\ML_DATA\RAWDATA\';              
+    fileList = glob(strcat(datDirectory,'*.dat'));
 %    This is all the things to parse the file list into
-    splices = {'MWS','V','P','R','.dat'};
+    splices = {'V','P','R','.dat'};
     
 %     Initialize Arrays for speed
-    filenames_TF = contains(fileList,casename);
-    fileList1 = fileList(filenames_TF);
-    parsed_file_list = cell(size(fileList1));
-    Velocity_list = cell(size(fileList1));
-    TSC_list = cell(size(fileList1));
-    Position_list = cell(size(fileList1));
-    Run_list = cell(size(fileList1));
-    
-    %     Pull every .dat file from fileList
-    for i=1:size(fileList1)
-        parsed_file_list{i} = strsplit(fileList1{i},splices);
-        TSC_list(i) = parsed_file_list{i}(1,4);
-        Velocity_list(i) = parsed_file_list{i}(1,5);
-        Position_list(i) = parsed_file_list{i}(1,6);
-        Run_list(i) = parsed_file_list{i}(1,7);       
-    end
-    
-display('The Velocities are:')
-Velocities = unique(Velocity_list)
-TSCs = unique(TSC_list);
-Max_runs = unique(Run_list);
-Number_Positions = unique(Position_list);
+%     filenames_TF = contains(fileList,casename);
+%     fileList1 = fileList(filenames_TF);
+    fileList1 = fileList; 
+%     parsed_file_list = cell(size(fileList1));
+%     Velocity_list = cell(size(fileList1));
+%     TSC_list = cell(size(fileList1));
+%     Position_list = cell(size(fileList1));
+%     Run_list = cell(size(fileList1));
+%     
+%     %     Pull every .dat file from fileList
+%     for i=1:size(fileList1)
+%         parsed_file_list{i} = strsplit(fileList1{i},splices);
+%         TSC_list(i) = parsed_file_list{i}(1,4);
+%         Velocity_list(i) = parsed_file_list{i}(1,5);
+%         Position_list(i) = parsed_file_list{i}(1,6);
+%         Run_list(i) = parsed_file_list{i}(1,7);       
+%     end
+%     
+% display('The Velocities are:')
+% Velocities = unique(Velocity_list)
+% TSCs = unique(TSC_list);
+% Max_runs = unique(Run_list);
+% Number_Positions = unique(Position_list);
 
 % Pull out the data from the glob filelist (rev 2 way)
 for i = 1:size(fileList1,1)
     filename_test = fileList1{i};
     A2 = dlmread(filename_test);            %  import mic rawdata
     data_sizing(:,i) = size(A2);
-    field(i) = strcat(splices(1), TSC_list(i), splices(2), Velocity_list(i),...
-    splices(3), Position_list(i), splices(4), Run_list(i));
-    data = 1000*A2./(sensitivity*Pref); %  convert voltage to pressure and normalize by Pref
-    
+    temp_string = char(fileList1{i});
+    field{i} = temp_string(67:end-4);
+   data = 1000*A2./(sensitivity*Pref); %  convert voltage to pressure and normalize by Pref
    V1{1, i} = struct(field{i},data);
 end
-
+disp('All data read in.')
 NumMics = (size(data,2));
 %
 %   ----------------------------------------------------------------------------
@@ -131,7 +131,7 @@ sigang = zeros(2, NumMics);
 beamformer = phased.TimeDelayBeamformer('SensorArray',array,...
                  'SampleRate',SampleRate,'PropagationSpeed',c,'Direction',[0; 0]);
 
-%  Beamform each series of arrays of microphones
+%%  Beamform each series of arrays of microphones %%
 for i = 1:size(V1,2)
 rsig = collector(V1{i}.(field{i}),sigang);
 amplituedBeamformedSig(:,i) = beamformer(rsig)/NumMics;
@@ -151,15 +151,17 @@ SPL_smooth(:,i) = smooth(f,SPL(:,i),0.005,'rloess' );
 % B      = 10*log10(Pressure1(i,:));
 % b(:,i) = smooth(f,B,0.005,'rloess' );
 end
+disp('numbers crunched')
 
-% Write each structure to an hdf5 file
-%% where each field is a file with a beamformed pressure, and smoothed 
+%%   ----------------------------------------------------------------------------
+% Write each structure to an hdf5 file %%
+% where each field is a file with a beamformed pressure, and smoothed 
 % Items to export:
 %  field (name of each file)
 %  amplitudeBeamformedSig (raw beamformed pressure)
 %  raw_spectrum (fft(abs()^2) of the raw pressure
 %  s (smoothed
-
+%   ----------------------------------------------------------------------------
 hdfFilename = strcat(casename,'.hdf5')
 
 hdf5write(hdfFilename, '/field', field)
