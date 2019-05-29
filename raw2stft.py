@@ -5,23 +5,26 @@ Created on Fri May 24 10:40:34 2019
 @author: andre
 """
 
-import sys
 import os
-#Adds dev_util git files found useful into python path (temporarily)
-sys.path.append("~\\dev\\dev_utils")
-from tic_toc import tic,toc
-import numpy as np
-from matplotlib import pyplot as plt
+import sys
 import h5py
-import glob
-from numpy.lib import stride_tricks
+import numpy as np
 import pandas as pd
+
+from numpy.lib import stride_tricks
+from matplotlib import pyplot as plt
+
+# Do some path and import setup
 from os.path import expanduser
 home = expanduser("~")
-
+sys.path.append("~\\dev\\dev_utils")
+from tic_toc import tic,toc
+# =============================================================================
+# The main purpose of this script is to generate a csv file and data directory 
+# with the 2 raw signals and then the 'answer' or bramformed and processed signal
+# from the hdf5 files processed in MATLAB
+# =============================================================================
 tic()
-
-
 """ short time fourier transform of audio signal """
 def stft(sig, frameSize, overlapFac=0.5, window=np.hanning):
     win = window(frameSize)
@@ -104,7 +107,7 @@ def plotstft(rawdata, samplerate=48000, binsize=2**10, plotpath=None, colormap="
     plt.yticks(ylocs, ["%.02f" % freq[i] for i in ylocs])
     
     if plotpath:
-        plt.savefig(plotpath, bbox_inches="tight")
+        plt.savefig(plotpath, bbox_inches="tight", dpi=1200)
     else:
         plt.show()
         
@@ -139,24 +142,44 @@ def hdf5_to_spec(hdf5fullpath, fileType='.hdf5'):
     Cleaned Acoustic Pressure, Raw Pressure, and the SmSpectrum (smoothed spectrum)
     then plots onto a spectogram and saves as a png'''
     hdfFileList = [f for f in os.listdir(hdf5fullpath) if f.endswith(fileType)]
-    
-    
-    
-    
-    
-    return hdfFileList
+    df_list = []
+    for i in range(0,len(hdfFileList)):
+        print(i)
+        print(hdfFileList[i])
+        f = h5py.File(hdf5fullpath+ '\\' + hdfFileList[i], 'r')
+        key_list = list(f)
+        print(key_list)
+        
+        CleanedAcousticPressure = f[key_list[0]][:]
+        RawPressure = f[key_list[1]][:]
+        SmSpectrum = f[key_list[2]][:]
+        field = f[key_list[3]][:]
+        field = [i.decode('utf-8') for i in field]
+        
+        # Now, the next thing on the list is to creat a csv file with all the data and 
+        # label it with wall noise, or noise of object.
+        data_dict = {key_list[3]: field,
+                     key_list[0]: list(CleanedAcousticPressure),
+                     key_list[1]: list(RawPressure),
+                     key_list[2]: list(SmSpectrum),
+                     }
+        keyList1 = [key_list[3],key_list[0],key_list[1],key_list[2]]
+        print(keyList1)
+        df = pd.DataFrame(data_dict, columns=keyList1)
+        print(df[key_list[0]].shape)
+        df_list.append(df)
+    return hdfFileList, df_list
 
 
 
-
-folderPath = home + '\\Dropbox (CSU Fullerton)\\EGME597_AB\\RAWDATA\\TSC'
+## INPUT COMMANDS BELOW
+folderPath = home + '\\Dropbox (CSU Fullerton)\\EGME597_AB\\ML_DATA\\RAWDATA'
 
 hdf5fullpath = 'C:\\Users\\andre\\Dropbox (CSU Fullerton)\\EGME597_AB\\ML_DATA'
 
 fileList, DatList, DatListExist = read_raw_microphone_data(folderPath)
-print(DatListExist)
 saveSpecPlots(DatListExist, MicNum=1)
-hdfFileList = hdf5_to_spec(hdf5fullpath)
+hdfFileList, df_list = hdf5_to_spec(hdf5fullpath)
 
 toc()
 
