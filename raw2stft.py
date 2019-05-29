@@ -184,7 +184,10 @@ saveSpecPlots(DatListExist, MicNum=1)
 hdfFileList, df_list = hdf5_to_spec(hdf5fullpath)
 
 toc()
-
+'''Next thing to do is saveSpecPlots for the hdf5 file... need to figure out how to
+save cleaned spectrum. maybe put each type into a different folder and then create a 
+generate csv with the _1 and _6 with the target in another column.
+'''
 
 
 
