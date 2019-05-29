@@ -32,8 +32,10 @@ def stft(sig, frameSize, overlapFac=0.5, window=np.hanning):
     
     # zeros at beginning (thus center of 1st window should be for sample nr. 0)
     samples = np.append(np.zeros(int(np.floor(frameSize/2.0))), sig)    
+    
     # cols for windowing
     cols = np.ceil((len(samples) - frameSize) / float(hopSize)) + 1
+    
     # zeros at end (thus samples can be fully covered by frames)
     samples = np.append(samples, np.zeros(frameSize))
     frames = stride_tricks.as_strided(samples, shape=(int(cols), frameSize), strides=(samples.strides[0]*hopSize, samples.strides[0])).copy()
@@ -43,8 +45,8 @@ def stft(sig, frameSize, overlapFac=0.5, window=np.hanning):
 
 """ scale frequency axis logarithmically """    
 def logscale_spec(spec, sr=48000, factor=20.):
+    
     timebins, freqbins = np.shape(spec)
-
     scale = np.linspace(0, 1, freqbins) ** factor
     scale *= (freqbins-1)/max(scale)
     scale = np.unique(np.round(scale))
