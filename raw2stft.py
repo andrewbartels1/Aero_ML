@@ -115,7 +115,7 @@ def plotstft(rawdata, samplerate=48000, binsize=2**10, plotpath=None, colormap="
         
     plt.clf()
 
-def saveSpecPlots(DatListExist, MicNum,PlotDirectory='RawSTFTPlots'):
+def saveSpecPlotsRaw(DatListExist, MicNum,PlotDirectory):
     if DatListExist == True:
         if not os.path.exists(PlotDirectory):
             os.mkdir(PlotDirectory)
@@ -132,6 +132,8 @@ def saveSpecPlots(DatListExist, MicNum,PlotDirectory='RawSTFTPlots'):
         plt.title(name)
         plt.savefig(plotName)
         plt.close()
+    else:
+        '''do the thing '''
 # =============================================================================
 # The next thing to do would be to import all the processed .hdf5 files from MATLAB 
 # and sync up the raw first and last microphone (raw) signal with the processed
@@ -170,7 +172,7 @@ def hdf5_to_spec(hdf5fullpath, fileType='.hdf5'):
         df = pd.DataFrame(data_dict, columns=keyList1)
         print(df[key_list[0]].shape)
         df_list.append(df)
-    return hdfFileList, df_list
+    return hdfFileList, df_list, key_list
 
 
 
@@ -179,9 +181,11 @@ folderPath = home + '\\Dropbox (CSU Fullerton)\\EGME597_AB\\ML_DATA\\RAWDATA'
 
 hdf5fullpath = 'C:\\Users\\andre\\Dropbox (CSU Fullerton)\\EGME597_AB\\ML_DATA'
 
-fileList, DatList, DatListExist = read_raw_microphone_data(folderPath)
-saveSpecPlots(DatListExist, MicNum=1)
-hdfFileList, df_list = hdf5_to_spec(hdf5fullpath)
+#fileList, DatList, DatListExist = read_raw_microphone_data(folderPath)
+#saveSpecPlotsRaw(DatListExist, MicNum=1, ='RawSTFTPlots')
+hdfFileList, df_list, key_list = hdf5_to_spec(hdf5fullpath)
+data = df_list[0][key_list[-1]]
+saveSpecPlots(, MicNum=1, PlotDirectory='SmSpectrumSpec')
 
 toc()
 '''Next thing to do is saveSpecPlots for the hdf5 file... need to figure out how to
