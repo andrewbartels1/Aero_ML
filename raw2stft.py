@@ -60,8 +60,8 @@ def read_hdf5(hdf5fullpath, fileType='.hdf5'):
         # an hdf5 to dict general but there should really only be the below fields for 
         # this specific research project.
         data_dict = {key_list[3]: field,
-                     key_list[0]: list(CleanedAcousticPressure),
-                     key_list[1]: list(RawPressure),
+                     key_list[0]: list(RawPressure),
+                     key_list[1]: list(CleanedAcousticPressure),
                      key_list[2]: list(SmSpectrum),
                      }
         keyList1 = [key_list[3],key_list[0],key_list[1],key_list[2]]
@@ -78,38 +78,57 @@ def folder_helper(dirName, parentPath):
     if not os.path.exists(os.path.join(parentPath, dirName)):
         os.makedirs(os.path.join(parentPath, dirName))
         print("Directory " , dirName ,  " Created ")
+        return dirName
     else:    
         print("Directory " , dirName ,  " already exists") 
+        return dirName
+    
     
 def saveSpecPlots(Data, MicNum, parentPath, PlotDirectory=None, key_list=None,
-                  hdf5plots=None, fileList=None):
+                  hdf5plotFolder=None, fileList=None):
     ''' The main reason this function is so complicated looking is it is 
-    is equipped to handle the read in hdf5 file or the '''
+    is equipped to handle the read in hdf5 file or the raw dat files'''
     if isinstance(Data, np.ndarray):
-        folder_helper(PlotDirectory, parentPath)
-        for i in range(1, len(Data)):
-            name = fileList[i][:9]+ '_{}_{}'.format(MicNum, i)
-            plotName =  os.getcwd() + '\\'+ PlotDirectory +'\\' + name
-            plt.specgram(Data[i, :, MicNum], cmap='jet', Fs=48000)
-            plt.title(name)
-            plt.savefig(plotName)
-            plt.close()
-    elif  isinstance(Data, pd.core.frame.DataFrame):
-        PlotDirectory = key_list;
-        folder_helper(hdf5plots, parentPath)
-        subdir = parentPath +'\\' + hdf5plots
-        for folder in range(0, len(PlotDirectory)):
-            folder_helper(PlotDirectory[folder], subdir)
-        for j in range(0, len(folders)):
-            for i in range(0, len(Data)):
-                name = fileList[i][:9]+ '_{}_{}'.format(MicNum, i)
-                plotName =  os.getcwd() + '\\'+ j +'\\' + name
-                plt.specgram(Data[i, :, MicNum], cmap='jet', Fs=48000)
-                plt.title(name)
-                plt.savefig(plotName)
-                plt.close()
+        
+       temp =  folder_helper(PlotDirectory, parentPath)
+       for i in range(1, len(Data)):
+           name = fileList[i][:9]+ '_{}_{}'.format(MicNum, i)
+           plotName =  os.getcwd() + '\\'+ PlotDirectory +'\\' + name
+           plt.specgram(Data[i, :, MicNum], cmap='jet', Fs=48000)
+           plt.title(name)
+           plt.xlabel('Time [S]')
+           plt.ylabel('Frequency [Hz]')
+           plt.savefig(plotName, dpi=1000)
+           plt.close()
+            
+    elif  isinstance(Data, list):
+        
+        for hdfFiles in range(0,len(df_list)):
+#            Take the pd.Datafame out of the list
+            data = df_list[hdfFiles]
+#           Make the new plot directory the key list
+        
+#           Make the maine and sub directories
+            subDIR = folder_helper(hdf5plotFolder, parentPath)
+            print(subDIR)
+            for folder in key_list:
+                if folder == 'field':
+                    continue
+                else:
+                   subsubDir =  folder_helper(folder, subDIR)
+                   
+                   for ind, row in data.iterrows():
+                        name = data['field'][ind]
+                        plotName = name[:9] + '_{}'.format(ind)
+                        fileName = os.path.join(parentPath, subDIR, subsubDir)+ '\\' + plotName
+                        plt.specgram(data[folder][ind], cmap='jet', Fs=48000)
+                        plt.title(plotName)
+                        plt.xlabel('Time [S]')
+                        plt.ylabel('Frequency [Hz]')
+                        plt.savefig(fileName, dpi=1000)
+                        plt.close()
     else:
-            raise Exception('saveSpecPlots accepts 3D np.ndarray or pd.core.frame.DataFromes only')
+        raise Exception('saveSpecPlots accepts 3D np.ndarray or a list of pd.core.frame.DataFromes only')
             
         
 
@@ -123,20 +142,23 @@ def saveSpecPlots(Data, MicNum, parentPath, PlotDirectory=None, key_list=None,
 ## INPUT COMMANDS BELOW
 # Raw data into spec
 folderPath = home + '\\Dropbox (CSU Fullerton)\\EGME597_AB\\ML_DATA\\RAWDATA'
-
+parentPath = os.getcwd()
 fileList, DatList, DatListExist = read_raw_microphone_data(folderPath)
-saveSpecPlots(DatList, MicNum=6, PlotDirectory='RawSTFTPlots', parentPath=folderPath,
+saveSpecPlots(DatList, MicNum=1, PlotDirectory='RawSTFTPlots', parentPath=parentPath,
               fileList=fileList)
-saveSpecPlots(DatList, MicNum=1, PlotDirectory='RawSTFTPlots', parentPath=folderPath,
+#
+saveSpecPlots(DatList, MicNum=6, PlotDirectory='RawSTFTPlots', parentPath=parentPath,
               fileList=fileList)
 
 # hdf5 file processing to stft in separate folders
 hdf5fullpath = home + '\\Dropbox (CSU Fullerton)\\EGME597_AB\\ML_DATA'
-parentPath = os.getcwd()
+
 hdfFileList, df_list, key_list = read_hdf5(hdf5fullpath)
-data = df_list[0]
-saveSpecPlots(data, MicNum=1, parentPath=parentPath, key_list=key_list,
-              hdf5plots='ProcessedSTFTPlots')
+
+saveSpecPlots(df_list, MicNum=1, parentPath=parentPath, key_list=key_list,
+              hdf5plotFolder='ProcessedSTFTPlots')
+saveSpecPlots(df_list, MicNum=6, parentPath=parentPath, key_list=key_list,
+              hdf5plotFolder='ProcessedSTFTPlots')
 
 print('STFT plots generated!')
 toc()
