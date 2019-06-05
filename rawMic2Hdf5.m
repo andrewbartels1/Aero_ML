@@ -11,98 +11,75 @@
 %       - TSC101, Kevlar only (one screen)
 %       - TSC202, Two Kevlar screens and speed varies from 0 - 40 in 5 m/s
 %       - TSC203, Two Kevlar screens, wind tunnel off
-% 
-% 
+%
+%
 % Input files:
 %  1) Dir of raw data (from cases above) with varying speed
-%    
-% 
-% 
-% 
+%
+%
+%
+%
 % %   Written By: Salvador Mayoral
 % %   Written on: ???
 % %    Modified By: Andrew Bartels
 % %    Modified on: 4-2-2019
-% 
+%
 %   Run time of this script is roughly 41 seconds
 %   ----------------------------------------------------------------------------
 %
 %   INITIALIZE CODE
 %   ----------------------------------------------------------------------------
-    clc
-    clear all 
-    close all
+clc
+clear all
+close all
 
-    
+
 tic
 %   Specify constants
-    SampleRate  = 48000;                        %  DAQ Sample rate (S/sec)
-    NS          = 48000;                        %  Number of samples
-    fn          = SampleRate/2;                         %  maximum resolvoble frequency
-    NFFT        = 2^12;                         %  4096 point FFT
-    NF          = NFFT/2;                       %  No. point for powerspecturm
-    NR          = 4;                            %  No. of runs
-    NP          = 4;                            %  No. of positions
-    NM          = 7;                            %  No. of microphones
-    Pref        = 20e-6;                        %  Reference pressure
-    sensitivity = [50.2 49.3 53.5 52.9 52.8 48.7 47.0]; % microphone sensitivity
-    c = 343;                                    % Speed of sound (m/s)
-    d  = 0.00858;                               % spacing of microphone array (cm)
+SampleRate  = 48000;                        %  DAQ Sample rate (S/sec)
+NS          = 48000;                        %  Number of samples
+fn          = SampleRate/2;                         %  maximum resolvoble frequency
+NFFT        = 2^12;                         %  4096 point FFT
+NF          = NFFT/2;                       %  No. point for powerspecturm
+NR          = 4;                            %  No. of runs
+NP          = 4;                            %  No. of positions
+NM          = 7;                            %  No. of microphones
+Pref        = 20e-6;                        %  Reference pressure
+sensitivity = [50.2 49.3 53.5 52.9 52.8 48.7 47.0]; % microphone sensitivity
+c = 343;                                    % Speed of sound (m/s)
+d  = 0.00858;                               % spacing of microphone array (cm)
 %
 %   ----------------------------------------------------------------------------
 %
 %   IMPORT AND SORT RAWDATA
-%   ---------------------------------------------------------------------------    
+%   ---------------------------------------------------------------------------
 %   Define microphone frequency responces files
-    micResponse7  = {'50' '56' '51' '54' '55' '49' '79'};    %  microphone freq response
-    micResponse8  = {'50' '56' '51' '54' '55' '49' '79' '56'};    %  microphone freq response
-    calDirectory = '../CALIBRATION/sn442';                  %  calibration directory
-    
-    R = zeros(NF,NM);                           %  allocate mic response
-    f = SampleRate*(0:NF-1)/NFFT;                       %  define frequency range
-    
+micResponse7  = {'50' '56' '51' '54' '55' '49' '79'};    %  microphone freq response
+micResponse8  = {'50' '56' '51' '54' '55' '49' '79' '56'};    %  microphone freq response
+calDirectory = '../CALIBRATION/sn442';                  %  calibration directory
+
+R = zeros(NF,NM);                           %  allocate mic response
+f = SampleRate*(0:NF-1)/NFFT;                       %  define frequency range
+
 %   Import microphone frequency responces
-    for i = 1:NM
-        filename = strcat(calDirectory,micResponse7{i},'.txt');
-        A = dlmread(filename);   %  import presssure rawdata
-        fm = A(:,1);
-        Sm = A(:,2);
-        clear A
-        R(:,i) = interp1(fm,Sm,f','pchip');
-    end
+for i = 1:NM
+    filename = strcat(calDirectory,micResponse7{i},'.txt');
+    A = dlmread(filename);   %  import presssure rawdata
+    fm = A(:,1);
+    Sm = A(:,2);
+    clear A
+    R(:,i) = interp1(fm,Sm,f','pchip');
+end
 %
 %   ---------------------------------------------------------------------------
 %%   Define data files
-    casename     = 'ALL';                    %  casename for data-processing
-    datDirectory = 'C:\Users\andre\Dropbox (CSU Fullerton)\EGME597_AB\ML_DATA\RAWDATA\';              
-    fileList = glob(strcat(datDirectory,'*.dat'));
+casename     = 'ALL';                    %  casename for data-processing
+datDirectory = 'C:\Users\andrewbartels1\Dropbox (CSU Fullerton)\EGME597_AB\ML_DATA\RAWDATA\';
+fileList = glob(strcat(datDirectory,'*.dat'));
 %    This is all the things to parse the file list into
-    splices = {'V','P','R','.dat'};
-    
-%     Initialize Arrays for speed
-%     filenames_TF = contains(fileList,casename);
-%     fileList1 = fileList(filenames_TF);
-    fileList1 = fileList; 
-%     parsed_file_list = cell(size(fileList1));
-%     Velocity_list = cell(size(fileList1));
-%     TSC_list = cell(size(fileList1));
-%     Position_list = cell(size(fileList1));
-%     Run_list = cell(size(fileList1));
-%     
-%     %     Pull every .dat file from fileList
-%     for i=1:size(fileList1)
-%         parsed_file_list{i} = strsplit(fileList1{i},splices);
-%         TSC_list(i) = parsed_file_list{i}(1,4);
-%         Velocity_list(i) = parsed_file_list{i}(1,5);
-%         Position_list(i) = parsed_file_list{i}(1,6);
-%         Run_list(i) = parsed_file_list{i}(1,7);       
-%     end
-%     
-% display('The Velocities are:')
-% Velocities = unique(Velocity_list)
-% TSCs = unique(TSC_list);
-% Max_runs = unique(Run_list);
-% Number_Positions = unique(Position_list);
+splices = {'V','P','R','.dat'};
+
+fileList1 = fileList;
 
 % Pull out the data from the glob filelist (rev 2 way)
 for i = 1:size(fileList1,1)
@@ -110,9 +87,9 @@ for i = 1:size(fileList1,1)
     A2 = dlmread(filename_test);            %  import mic rawdata
     data_sizing(:,i) = size(A2);
     temp_string = char(fileList1{i});
-    field{i} = temp_string(67:end-4);
-   data = 1000*A2./(sensitivity*Pref); %  convert voltage to pressure and normalize by Pref
-   V1{1, i} = struct(field{i},data);
+    field{i} = temp_string(76:end-4);
+    data = 1000*A2./(sensitivity*Pref); %  convert voltage to pressure and normalize by Pref
+    V1{1, i} = struct(field{i},data);
 end
 disp('All data read in.')
 NumMics = (size(data,2));
@@ -120,7 +97,7 @@ NumMics = (size(data,2));
 %   ----------------------------------------------------------------------------
 %
 %   Delay-and-Sum Beamforming
-%   ---------------------------------------------------------------------------  
+%   ---------------------------------------------------------------------------
 % Setup the beamforming arrays and sizing
 array = phased.ULA('NumElements',NumMics,'ElementSpacing',d); % define arrat
 microphone = phased.OmnidirectionalMicrophoneElement(...
@@ -129,33 +106,54 @@ collector = phased.WidebandCollector('Sensor',array,'SampleRate',24e3,...
     'PropagationSpeed',c,'ModulatedInput',false);
 sigang = zeros(2, NumMics);
 beamformer = phased.TimeDelayBeamformer('SensorArray',array,...
-                 'SampleRate',SampleRate,'PropagationSpeed',c,'Direction',[0; 0]);
+    'SampleRate',SampleRate,'PropagationSpeed',c,'Direction',[0; 0]);
 
 %%  Beamform each series of arrays of microphones %%
+% initialize OUTSIDE THE ARRAY. (DON"T BE DUMB LIKE ME)
+j=1;                                                        %counter for subracting pressures
+    k0 = 2;
+    k1 = 3;
+    k2 = 4;
+    k3 = 5;
+    A = 1:5:size(V1,2);
+    
 for i = 1:size(V1,2)
-rsig = collector(V1{i}.(field{i}),sigang);
-amplituedBeamformedSig(:,i) = beamformer(rsig)/NumMics;
-FreqBeamSig = fft(amplituedBeamformedSig,NFFT)/NFFT;
-acousticPressure(:,i) = abs(FreqBeamSig(1:NF)).^2;
-SPL(:,i) = 10*log10(acousticPressure(:,i))-mean(R,2);
-CleanedAcousticPressure(:,i) = 10.^(SPL(:,i)/10);
-% This is subtracting out the background noise. Trying to have the machine
-% learning do this part. Will do this to label nonnoise features of the
-% dataset
-% Pressure(:,i) = abs(Pressure(:,i) - Pressure(:,1,i));
+  
+    rsig = collector(V1{i}.(field{i}),sigang);
+    amplituedBeamformedSig = beamformer(rsig)/NumMics;
+    FreqBeamSig = fft(amplituedBeamformedSig,NFFT)/NFFT;
+    acousticPressure(:,i) = abs(FreqBeamSig).^2;
+    
+    % taking out the microphone sensitivity profile
+    R1 = interp1(R,1:size(acousticPressure),'pchip');
+    SPL(:,i) = 10*log10(acousticPressure(:,i))-mean(R1,2);
+    CAcousticPressure(:,i) = 10.^(SPL(:,i)/10);
+end
+for j = 1:5:size(V1,2)
+    CleanedAcousticPressure(:,k0) = abs(CAcousticPressure(:,k0) - CAcousticPressure(:,j));
+    CleanedAcousticPressure(:,k1) = abs(CAcousticPressure(:,k1) - CAcousticPressure(:,j));
+    CleanedAcousticPressure(:,k2) = abs(CAcousticPressure(:,k2) - CAcousticPressure(:,j));
+    CleanedAcousticPressure(:,k3) = abs(CAcousticPressure(:,k3) - CAcousticPressure(:,j));
+    k0 = k0 + 5;
+    k1 = k1 + 5;
+    k2 = k2 + 5;
+    k3 = k3 + 5;
+end
+f1 = interp1(f,1:size(R1,1),'pchip');
+for j = 1:size(SPL,2)
+    SPL(:,j) = 10*log10(CleanedAcousticPressure(:,j));
+    SPL_smooth(:,j) = smooth(f1,SPL(:,j),0.005,'rloess' );
+end
 
-SPL(:,i) = 10*log10(CleanedAcousticPressure(:,i));
-SPL_smooth(:,i) = smooth(f,SPL(:,i),0.005,'rloess' );
-
-% Not sure what this is.
+% original smoothing function
 % B      = 10*log10(Pressure1(i,:));
 % b(:,i) = smooth(f,B,0.005,'rloess' );
-end
+
 disp('numbers crunched')
 
 %%   ----------------------------------------------------------------------------
 % Write each structure to an hdf5 file %%
-% where each field is a file with a beamformed pressure, and smoothed 
+% where each field is a file with a beamformed pressure, and smoothed
 % Items to export:
 %  field (name of each file)
 %  amplitudeBeamformedSig (raw beamformed pressure)
@@ -164,10 +162,10 @@ disp('numbers crunched')
 %   ----------------------------------------------------------------------------
 hdfFilename = strcat(casename,'.hdf5')
 
-hdf5write(hdfFilename, '/field', field)
-hdf5write(hdfFilename, '/RawPressure', SPL,'writemode','append')
-hdf5write(hdfFilename, '/RawSpectrum', CleanedAcousticPressure,'writemode','append')
-hdf5write(hdfFilename, '/SmSpecturm', SPL_smooth,'writemode','append')
+hdf5write(hdfFilename, '/field', field);
+hdf5write(hdfFilename, '/RawPressure', CleanedAcousticPressure,'writemode','append');
+hdf5write(hdfFilename, '/RawSpectrum', SPL,'writemode','append');
+hdf5write(hdfFilename, '/SmSpecturm', SPL_smooth,'writemode','append');
 
 % h5create(hdfFilename,'/',[10 20])
 % mydata = rand(10,20);
