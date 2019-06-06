@@ -98,7 +98,7 @@ def saveSpecPlots(Data, MicNum, parentPath, PlotDirectory=None, key_list=None,
            plt.title(name)
            plt.xlabel('Time [S]')
            plt.ylabel('Frequency [Hz]')
-           plt.savefig(plotName, dpi=1000)
+           plt.savefig(plotName)
            plt.close()
             
     elif  isinstance(Data, list):
@@ -125,7 +125,7 @@ def saveSpecPlots(Data, MicNum, parentPath, PlotDirectory=None, key_list=None,
                         plt.title(plotName)
                         plt.xlabel('Time [S]')
                         plt.ylabel('Frequency [Hz]')
-                        plt.savefig(fileName, dpi=1000)
+                        plt.savefig(fileName)
                         plt.close()
     else:
         raise Exception('saveSpecPlots accepts 3D np.ndarray or a list of pd.core.frame.DataFromes only')
@@ -400,11 +400,11 @@ def xcorr_offset(x1, x2):
 
 
 ### Parameters ###
-fft_size = 2048 # window size for the FFT
+fft_size = 2**12 # window size for the FFT
 step_size = fft_size/16 # distance to slide along the window (in time)
 spec_thresh = 4 # threshold for spectrograms (lower filters out more noise)
-lowcut = 500 # Hz # Low cut for our butter bandpass filter
-highcut = 15000 # Hz # High cut for our butter bandpass filter
+lowcut = 1000 # Hz # Low cut for our butter bandpass filter
+highcut = 48000/2 # Hz # High cut for our butter bandpass filter
 
 
 sampleRate  = 48000                        #  DAQ Sample rate (S/sec)
