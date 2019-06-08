@@ -400,7 +400,7 @@ def xcorr_offset(x1, x2):
 
 
 ### Parameters ###
-fft_size = 2**12 # window size for the FFT
+fft_size = int(2**12) # window size for the FFT
 step_size = fft_size/16 # distance to slide along the window (in time)
 spec_thresh = 4 # threshold for spectrograms (lower filters out more noise)
 lowcut = 1000 # Hz # Low cut for our butter bandpass filter
@@ -414,11 +414,19 @@ NFFT        = 2**12                         #  4096 point FFT
 NF          = NFFT/2                       #  No. point for powerspecturm
 Pref        = 20e-6                        #  Reference pressure
 sensitivity = [50.2, 49.3, 53.5, 52.9, 52.8, 48.7, 47.0] # microphone sensitivity
+
+
+
+
 c = 343
 MicArrayElements = 7
 arraySpacing = 0.00858 # Array spacing (cm)
 
 
+wav_spectrogram = pretty_spectrogram(DatList[20,:,1], fft_size = fft_size, 
+                                   step_size = step_size, log = True, thresh = spec_thresh)
 
-
-
+fig, ax = plt.subplots(nrows=1,ncols=1, figsize=(20,4))
+cax = ax.matshow(np.transpose(wav_spectrogram), interpolation='nearest', aspect='auto', cmap=plt.cm.afmhot, origin='lower')
+fig.colorbar(cax)
+plt.title('Original Spectrogram')
