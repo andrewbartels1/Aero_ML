@@ -10,8 +10,10 @@ import sys
 import h5py
 import numpy as np
 import pandas as pd
-
-from numpy.lib import stride_tricks
+import copy
+from scipy.io import wavfile
+from scipy.signal import butter, lfilter
+import scipy.ndimage
 from matplotlib import pyplot as plt
 
 # Do some path and import setup
@@ -77,10 +79,10 @@ def read_hdf5(hdf5fullpath, fileType='.hdf5'):
 def folder_helper(dirName, parentPath):
     if not os.path.exists(os.path.join(parentPath, dirName)):
         os.makedirs(os.path.join(parentPath, dirName))
-        print("Directory " , dirName ,  " Created ")
+#        print("Directory " , dirName ,  " Created ")
         return dirName
     else:    
-        print("Directory " , dirName ,  " already exists") 
+#        print("Directory " , dirName ,  " already exists") 
         return dirName
     
     
@@ -167,12 +169,7 @@ save cleaned spectrum. maybe put each type into a different folder and then crea
 generate csv with the _1 and _6 with the target in another column.
 '''
 
-import numpy as np
-import matplotlib.pyplot as plt
-import copy
-from scipy.io import wavfile
-from scipy.signal import butter, lfilter
-import scipy.ndimage
+
 
 # Most of the Spectrograms and Inversion are taken from: https://gist.github.com/kastnerkyle/179d6e9a88202ab0a2fe
 
@@ -216,6 +213,8 @@ def overlap(X, window_size, window_step):
 
     valid = len(a) - ws
     nw = (valid) // ss
+    print('nw is', type(nw), nw)
+    print('ws is', type(ws), ws)
     out = np.ndarray((nw,ws),dtype = a.dtype)
 
     for i in xrange(nw):
@@ -242,7 +241,7 @@ def stft(X, fftsize=128, step=65, mean_normalize=True, real=False,
         cut = fftsize // 2
     if mean_normalize:
         X -= X.mean()
-
+    
     X = overlap(X, fftsize, step)
     
     size = fftsize
@@ -257,8 +256,7 @@ def pretty_spectrogram(d,log = True, thresh= 5, fft_size = 512, step_size = 64):
     log: take the log of the spectrgram
     thresh: threshold minimum power for log spectrogram
     """
-    specgram = np.abs(stft(d, fftsize=fft_size, step=step_size, real=False,
-        compute_onesided=True))
+    specgram = np.abs(stft(d, fftsize=fft_size, step=step_size, real=False, compute_onesided=True))
   
     if log == True:
         specgram /= specgram.max() # volume normalize to max 1
@@ -409,24 +407,26 @@ highcut = 48000/2 # Hz # High cut for our butter bandpass filter
 
 sampleRate  = 48000                        #  DAQ Sample rate (S/sec)
 NS          = 48000                        #  Number of samples
-fn          = sampleRate/2                         #  maximum resolvoble frequency
-NFFT        = 2**12                         #  4096 point FFT
+fn          = sampleRate/2                 #  maximum resolvoble frequency
+NFFT        = 2**12                        #  4096 point FFT
 NF          = NFFT/2                       #  No. point for powerspecturm
 Pref        = 20e-6                        #  Reference pressure
-sensitivity = [50.2, 49.3, 53.5, 52.9, 52.8, 48.7, 47.0] # microphone sensitivity
-
-
-
-
-c = 343
+c = 343                                    # Speed of sound 
 MicArrayElements = 7
 arraySpacing = 0.00858 # Array spacing (cm)
 
 
 wav_spectrogram = pretty_spectrogram(DatList[20,:,1], fft_size = fft_size, 
-                                   step_size = step_size, log = True, thresh = spec_thresh)
+                                     step_size = step_size, log = True, thresh = spec_thresh)
 
 fig, ax = plt.subplots(nrows=1,ncols=1, figsize=(20,4))
 cax = ax.matshow(np.transpose(wav_spectrogram), interpolation='nearest', aspect='auto', cmap=plt.cm.afmhot, origin='lower')
 fig.colorbar(cax)
 plt.title('Original Spectrogram')
+
+
+
+
+
+
+
