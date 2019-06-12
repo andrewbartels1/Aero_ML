@@ -213,11 +213,9 @@ def overlap(X, window_size, window_step):
 
     valid = len(a) - ws
     nw = (valid) // ss
-    print('nw is', type(nw), nw)
-    print('ws is', type(ws), ws)
-    out = np.ndarray((nw,ws),dtype = a.dtype)
+    out = np.ndarray((int(nw),ws),dtype = a.dtype)
 
-    for i in xrange(nw):
+    for i in range(int(nw)):
         # "slide" the window along the samples
         start = i * ss
         stop = start + ws
@@ -399,7 +397,7 @@ def xcorr_offset(x1, x2):
 
 ### Parameters ###
 fft_size = int(2**12) # window size for the FFT
-step_size = fft_size/16 # distance to slide along the window (in time)
+step_size = int(fft_size/16) # distance to slide along the window (in time)
 spec_thresh = 4 # threshold for spectrograms (lower filters out more noise)
 lowcut = 1000 # Hz # Low cut for our butter bandpass filter
 highcut = 48000/2 # Hz # High cut for our butter bandpass filter
@@ -420,10 +418,12 @@ wav_spectrogram = pretty_spectrogram(DatList[20,:,1], fft_size = fft_size,
                                      step_size = step_size, log = True, thresh = spec_thresh)
 
 fig, ax = plt.subplots(nrows=1,ncols=1, figsize=(20,4))
-cax = ax.matshow(np.transpose(wav_spectrogram), interpolation='nearest', aspect='auto', cmap=plt.cm.afmhot, origin='lower')
+cax = ax.matshow(np.transpose(wav_spectrogram), interpolation='nearest', aspect='auto', cmap=plt.cm.jet, origin='lower')
 fig.colorbar(cax)
-plt.title('Original Spectrogram')
+plt.title('Raw Spectrogram')
 
+recovered_audio_orig = invert_pretty_spectrogram(wav_spectrogram, fft_size = fft_size,
+                                            step_size = step_size, log = True, n_iter = 10)
 
 
 
