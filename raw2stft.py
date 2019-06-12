@@ -11,9 +11,10 @@ import h5py
 import numpy as np
 import pandas as pd
 import copy
-from scipy.io import wavfile
+
 from scipy.signal import butter, lfilter
 import scipy.ndimage
+from sklearn import preprocessing as pre
 from matplotlib import pyplot as plt
 
 # Do some path and import setup
@@ -74,7 +75,6 @@ def read_hdf5(hdf5fullpath, fileType='.hdf5'):
     return hdfFileList, df_list, key_list
 #    
 #def datfiles_to_csv():
-
 
 def folder_helper(dirName, parentPath):
     if not os.path.exists(os.path.join(parentPath, dirName)):
@@ -344,7 +344,7 @@ def invert_spectrogram(X_s, step, calculate_offset=True, set_zero_phase=True):
         wave[wave_start:wave_end] += win * wave_est[
             est_start - offset:est_end - offset]
         total_windowing_sum[wave_start:wave_end] += win
-    wave = np.real(wave) / (total_windowing_sum + 1E-6)
+    wave = np.real(wave) / (total_windowing_sum + Pref)
     return wave
 
 def xcorr_offset(x1, x2):
@@ -414,7 +414,8 @@ saveSpecPlots(df_list, MicNum=6, parentPath=parentPath, key_list=key_list,
 
 print('STFT plots generated!')
 
-wav_spectrogram = pretty_spectrogram(DatList[20,:,1], fft_size = fft_size, 
+data = df_list[0]
+wav_spectrogram = pretty_spectrogram(data['SmSpecturm'][121], fft_size = fft_size, 
                                      step_size = step_size, log = True, thresh = spec_thresh)
 
 fig, ax = plt.subplots(nrows=1,ncols=1, figsize=(20,4))
@@ -422,11 +423,20 @@ cax = ax.matshow(np.transpose(wav_spectrogram), interpolation='nearest', aspect=
 fig.colorbar(cax)
 plt.title('Raw Spectrogram')
 
+#This recovery method is not working the best right now. The original spectrum is from -188 to about 1400 in the y
+# while the recovered is very close to zero... Need to figure out where this is being caused later.
 recovered_audio_orig = invert_pretty_spectrogram(wav_spectrogram, fft_size = fft_size,
-                                            step_size = step_size, log = True, n_iter = 10)
+                                            step_size = step_size, log = True, n_iter = 100)
 
-
-
+fig1, ax1 = plt.subplots(nrows=1,ncols=1, figsize=(20,4))
+plt.plot(np.linspace(0, recovered_audio_orig.shape[0], num=recovered_audio_orig.shape[0]), recovered_audio_orig)
+plt.plot(np.linspace(0, 1400, num= 4094), pre.normalize(data['SmSpecturm'][121], axis=0))
+plt.title('different plt')
 toc()
+
+
+# =============================================================================
+# Next thing to do is save the data into a numpy array (csv style) to feed into LSTM
+# =============================================================================
 
 
