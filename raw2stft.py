@@ -143,27 +143,7 @@ def saveSpecPlots(Data, MicNum, parentPath, PlotDirectory=None, key_list=None,
 
 ## INPUT COMMANDS BELOW
 # Raw data into spec
-folderPath = home + '\\Dropbox (CSU Fullerton)\\EGME597_AB\\ML_DATA\\RAWDATA'
-parentPath = os.getcwd()
-fileList, DatList, DatListExist = read_raw_microphone_data(folderPath)
-saveSpecPlots(DatList, MicNum=1, PlotDirectory='RawSTFTPlots', parentPath=parentPath,
-              fileList=fileList)
-#
-saveSpecPlots(DatList, MicNum=6, PlotDirectory='RawSTFTPlots', parentPath=parentPath,
-              fileList=fileList)
 
-# hdf5 file processing to stft in separate folders
-hdf5fullpath = home + '\\Dropbox (CSU Fullerton)\\EGME597_AB\\ML_DATA'
-
-hdfFileList, df_list, key_list = read_hdf5(hdf5fullpath)
-
-saveSpecPlots(df_list, MicNum=1, parentPath=parentPath, key_list=key_list,
-              hdf5plotFolder='ProcessedSTFTPlots')
-saveSpecPlots(df_list, MicNum=6, parentPath=parentPath, key_list=key_list,
-              hdf5plotFolder='ProcessedSTFTPlots')
-
-print('STFT plots generated!')
-toc()
 '''Next thing to do is saveSpecPlots for the hdf5 file... need to figure out how to
 save cleaned spectrum. maybe put each type into a different folder and then create a 
 generate csv with the _1 and _6 with the target in another column.
@@ -398,7 +378,7 @@ def xcorr_offset(x1, x2):
 ### Parameters ###
 fft_size = int(2**12) # window size for the FFT
 step_size = int(fft_size/16) # distance to slide along the window (in time)
-spec_thresh = 4 # threshold for spectrograms (lower filters out more noise)
+spec_thresh = 3 # threshold for spectrograms (lower filters out more noise)
 lowcut = 1000 # Hz # Low cut for our butter bandpass filter
 highcut = 48000/2 # Hz # High cut for our butter bandpass filter
 
@@ -413,6 +393,26 @@ c = 343                                    # Speed of sound
 MicArrayElements = 7
 arraySpacing = 0.00858 # Array spacing (cm)
 
+folderPath = home + '\\Dropbox (CSU Fullerton)\\EGME597_AB\\ML_DATA\\RAWDATA'
+parentPath = os.getcwd()
+fileList, DatList, DatListExist = read_raw_microphone_data(folderPath)
+saveSpecPlots(DatList, MicNum=1, PlotDirectory='RawSTFTPlots', parentPath=parentPath,
+              fileList=fileList)
+#
+saveSpecPlots(DatList, MicNum=6, PlotDirectory='RawSTFTPlots', parentPath=parentPath,
+              fileList=fileList)
+
+# hdf5 file processing to stft in separate folders
+hdf5fullpath = home + '\\Dropbox (CSU Fullerton)\\EGME597_AB\\ML_DATA'
+
+hdfFileList, df_list, key_list = read_hdf5(hdf5fullpath)
+
+saveSpecPlots(df_list, MicNum=1, parentPath=parentPath, key_list=key_list,
+              hdf5plotFolder='ProcessedSTFTPlots')
+saveSpecPlots(df_list, MicNum=6, parentPath=parentPath, key_list=key_list,
+              hdf5plotFolder='ProcessedSTFTPlots')
+
+print('STFT plots generated!')
 
 wav_spectrogram = pretty_spectrogram(DatList[20,:,1], fft_size = fft_size, 
                                      step_size = step_size, log = True, thresh = spec_thresh)
@@ -427,6 +427,6 @@ recovered_audio_orig = invert_pretty_spectrogram(wav_spectrogram, fft_size = fft
 
 
 
-
+toc()
 
 
