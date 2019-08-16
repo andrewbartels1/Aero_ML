@@ -69,14 +69,13 @@ switch(Case)
         error('MWS or ACC are the only cases available')
 end
         
-calDirectory = '../CALIBRATION/sn442';                  %  calibration directory
 
 R = zeros(NF,NM);                           %  allocate mic response
 f = SampleRate*(0:NF-1)/NFFT;                       %  define frequency range
 
 %   Import microphone frequency responces
 for i = 1:NM
-    filename = strcat(calDirectory,micResponse{i},'.txt');
+    filename = strcat(Calibration_dir,micResponse{i},'.txt');
     A = dlmread(filename);   %  import presssure rawdata
     fm = A(:,1);
     Sm = A(:,2);
@@ -236,16 +235,17 @@ Data(:,:,1:5:end) = [];
 for j = 1:size(SPL_cleaned,2)
     SPL_smooth(:,j) = smooth(f,SPL_cleaned(:,j),0.0055,'rloess' );
     SPL1(:,j) = smooth(f,SPL1(:,j),0.005,'rloess' );
-    j
 end
 
 % Plot example to ensure things make sense
 randNum = randi(size(SPL1,2),1)
 
-FigHandle_01 = figure('Position', get(0, 'Screensize'));
-semilogx(f,[SPL_cleaned(:,randNum),SPL1(:,randNum), SPL_smooth(:,randNum)],'LineWidth', 1.75)
+FigHandle_01 = figure('Position', [100, 150, 350, 290]);
+semilogx(f,[SPL_cleaned(:,randNum),SPL1(:,randNum), SPL_smooth(:,randNum)],'LineWidth', 1)
 legend('SPL_{denoised}','2 mic SPL_{smoothed}','7 mic SPL_{smoothed}', 'Location', 'Southwest')
-title('2 mics Beamformed vs 7 mics smoothed & Beamformed')
+title('2 mics Beamformed vs 7 mics smoothed & Beamformed', 'FontSize', 8.5)
+xlabel('frequency (Hz)')
+ylabel('Sound Pressure Level (dB)')
 saveas(FigHandle_01,'example_signal_output','jpeg')
 
 

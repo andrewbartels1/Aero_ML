@@ -40,7 +40,7 @@ ModelsFileList = glob(strcat(matDirectory,'*.mat'));
 
 % Run just this section and select the correct model to load. Double-click
 % and open the ModelsFileList variable.
-FileNumber = 10;
+FileNumber = 11;
 
 disp('Model being loaded:')
 ModelsFileList{FileNumber}
@@ -90,9 +90,9 @@ end
 % cell. Such that N are columns of features and M are the total number of
 % training files.
 for i=1:size(Data,3)
-% sequences{i,1}(:,1) = MelSpecs_2(:,i);
+sequences{i,1}(:,1) = MelSpecs_2(:,i);
 % sequences = SpecCellArray';
-sequences{i,1}(:,1) = coeffs_2(:,i);
+sequences{i,1}(:,2) = coeffs_2(:,i);
 % sequences{i,1}(:,3) = f0(1:size(MelSpecs_2,1),i);
 % sequences{i,1}(:,4) = delta2(:,i);
 % sequences{i,1}(:,5) = deltaDelta2(:,i);
@@ -131,17 +131,20 @@ toc
 disp('/n /n Prediction made, now plotting...')
 % % Save in a loop to look through later in a .jpg
 for i=1:size(sequences,1)
-i
 FigHandle_01 = figure('Position', [100, 150, 350, 290],'Visible','off');
-semilogx(f,[YPred(:,i), target{i}, SPL1(:,i)]);
+semilogx(f,YPred(:,i),'Color',[0.8500, 0.3250, 0.0980] , 'LineWidth', 2.5)
+hold on
+semilogx(f, target{i}, 'b', 'LineWidth', 2.5)
+semilogx(f,SPL1(:,i), 'k', 'LineWidth', 2.5);
+hold off
 legend('Prediction','Target','Input')
 title(sprintf('prediction %d',i))
 xlabel('frequency (Hz)')
 ylabel('Sound Pressure Level (SPL)')
-
 axis([0 4000 0 130])
 saveas(FigHandle_01,fullfile(DirName,sprintf('prediction %d',i)),'jpeg')
 clear FigHandle_04
+
 end
 
 
