@@ -27,16 +27,13 @@
 %  signal_blocks
 %  signal_toolbox
 %  statistics_toolbox
-
-
 % %    Written By: Andrew Bartels
-% %    Written on: 7-16-2019
+% %    Written on: 8-1-2019
 % %    Modified By: Andrew Bartels
-% %    Modified on: 7-15-2019
+% %    Modified on: 8-27-2019
 %     Original base code written by: Andrew Bartels
 %     contact info: andrewbartels1@gmail.com or ~@csu.fullerton.edu
 %
-%  Run time of this entire script is roughly:
 %
 %   ----------------------------------------------------------------------------
 %
@@ -62,12 +59,14 @@ BOTH_dir = '\Dropbox (CSU Fullerton)\EGME597_AB\ML_DATA\BOTH\';
 
 calDirectory = '\Dropbox (CSU Fullerton)\EGME597_AB\CALIBRATION\sn442';                  %  calibration directory
  
-% If you have a new folder put the directory (MINUS HOME) here.
+% If you have a new folder put the directory of data to feed the LSTM, put
+% it here.
 
 MWS_dir = strcat(home,MWS_dir);
 ACC_dir = strcat(home,ACC_dir);
 BOTH_dir = strcat(home,BOTH_dir);
 Calibration_dir = strcat(home,calDirectory);
+
 % Setup preprocessing save file names
 PreprocessingSaveFile = 'CleanedDataForNN_';
 
@@ -106,57 +105,8 @@ end
 
 run('LSTM_preprocessing.m')
 
-% -------------------------------------------------------------------------
-% -------------------------------------------------------------------------
-% -------------------------------------------------------------------------
-% DEFINE THE MODEL STRUCTURE BELOW.
 
-% two ecamples are given here, a C-BiLSTM and a simple LSTM.
-% -------------------------------------------------------------------------
-% DEEP biLSTM
-% -------------------------------------------------------------------------
-tempLayers = [
-    sequenceInputLayer(InputSize,"Name","sequence","Normalization","zerocenter")
-    sequenceFoldingLayer("Name","seqfold")];
-layers = addLayers(layers,tempLayers);
 
-tempLayers = [
-    convolution2dLayer([3 3],3,"Name","conv_1","Padding","same")
-    batchNormalizationLayer("Name","batchnorm_1")
-    dropoutLayer(0.5,"Name","dropout_1")
-    convolution2dLayer([5 5],3,"Name","conv_3","Padding","same")
-    batchNormalizationLayer("Name","batchnorm_2")
-    eluLayer(1,"Name","elu")];
-layers = addLayers(layers,tempLayers);
-
-tempLayers = [
-    sequenceUnfoldingLayer("Name","sequnfold")
-    flattenLayer("Name","flatten")
-    lstmLayer(500,"Name","bilstm1")
-    fullyConnectedLayer(numResponses,"Name","fc_1")
-    %     fullyConnectedLayer(numResponses,"Name","fc_2")
-    dropoutLayer(0.5,"Name","dropout_2")
-    fullyConnectedLayer(numResponses,"Name","fc_3")
-    regressionLayer("Name","Output")];
-layers = addLayers(layers,tempLayers);
-
-layers = connectLayers(layers,"seqfold/out","conv_1");
-layers = connectLayers(layers,"seqfold/miniBatchSize","sequnfold/miniBatchSize");
-layers = connectLayers(layers,"elu","sequnfold/in");
-
-% -------------------------------------------------------------------------
-% Simple LSTM
-% -------------------------------------------------------------------------
-% tempLayers = [
-%     sequenceInputLayer(InputSize,"Name","sequence")
-%     flattenLayer("Name","flatten")
-%     lstmLayer(2000,"Name","lstm1")
-%     dropoutLayer(0.5,"Name","dropout_1")
-%     fullyConnectedLayer(250,"Name","fc_1")
-%     fullyConnectedLayer(numResponses,"Name","fc_2")
-%     regressionLayer("Name","Output")];
-%
-% layers = addLayers(layers,tempLayers);
 
 % Rename save variable used for preprocessing
 ModelSaveFile = SaveFile;
@@ -164,7 +114,7 @@ ModelSaveFile = SaveFile;
 
 % Run and train the network. If you only want to pre-process the data,
 % comment out the line below.
-run('LSTM_feature_preprocessing.m')
+run('LSTM_model.m')
 
 
 clear Case

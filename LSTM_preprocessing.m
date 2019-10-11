@@ -248,7 +248,9 @@ xlabel('frequency (Hz)')
 ylabel('Sound Pressure Level (dB)')
 saveas(FigHandle_01,'example_signal_output','jpeg')
 
-
+% Save a bunch of stuff as an intermediary file... It's probably a fairly
+% large file size, so it's best to delete after reading in but won't since
+% Dropbox space isn't an issue.
 save(PreprocessingSaveFile, 'Data','SPL1','SPL_smooth','SPL_cleaned','SampleRate','NS','fn','NFFT',...
                 'NF','NR','NP','NM','Pref','sensitivity','c','d', 'f', 'fileList')                            
 disp('Data ready for LSTM network')

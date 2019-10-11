@@ -16,8 +16,6 @@
 %   Required inputs:
 %   
 %    1) micResponse ('MWS' or 'ACC')
-%    
-%
 %
 % %    Written By: Andrew Bartels
 % %    Written on: 1-1-2019
@@ -34,6 +32,7 @@ clc
 
 tic
 matDirectory = 'C:\Users\andrewbartels1\Dropbox (CSU Fullerton)\EGME597_AB\MATLAB\'
+ 
 ModelsFileList = glob(strcat(matDirectory,'*.mat'));
 
 %Import all the data here
@@ -148,9 +147,7 @@ clear FigHandle_04
 end
 
 
-% Get all the text files and see which model is the best so far.
-
-% then predict with that model.
+%TODO: Get all the text files and see which model is the best so far.
 
 toc
 

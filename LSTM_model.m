@@ -76,6 +76,14 @@ saveas(FigHandle_01,'2_vs_7 MelSpec','jpeg')
 %   ---------------------------------------------------------------------------
 % Extract features going into the network
 
+% TODO: Split up and train models the over lap. i.e. have one model predict
+% 1:150, 125:175 etc. and use the compilation of models to see what is
+% best. OR look up better model architectures like a super-resolution model
+% with repeating and skipping layers.
+
+% Also revise paper and see about publishing at a converence etc after much
+% better result.
+
 tic
 cepFeatures  = cepstralFeatureExtractor('InputDomain', 'Frequency','SampleRate', SampleRate,...
                                           'NumCoeffs', 40);
@@ -155,7 +163,61 @@ InputSize = [size(sequences{1,1}),1];
 numResponses = size(target{1},1);
 clc
 diary on
-layers = layerGraph()
+layers = layerGraph();
+
+% -------------------------------------------------------------------------
+% -------------------------------------------------------------------------
+% -------------------------------------------------------------------------
+% DEFINE THE MODEL STRUCTURE BELOW.
+
+% two ecamples are given here, a C-BiLSTM and a simple LSTM.
+% -------------------------------------------------------------------------
+% DEEP biLSTM
+% -------------------------------------------------------------------------
+tempLayers = [
+    sequenceInputLayer(InputSize,"Name","sequence","Normalization","zerocenter")
+    sequenceFoldingLayer("Name","seqfold")];
+layers = addLayers(layers,tempLayers);
+
+tempLayers = [
+    convolution2dLayer([3 3],3,"Name","conv_1","Padding","same")
+    batchNormalizationLayer("Name","batchnorm_1")
+    dropoutLayer(0.5,"Name","dropout_1")
+    convolution2dLayer([5 5],3,"Name","conv_3","Padding","same")
+    batchNormalizationLayer("Name","batchnorm_2")
+    eluLayer(1,"Name","elu")];
+layers = addLayers(layers,tempLayers);
+
+tempLayers = [
+    sequenceUnfoldingLayer("Name","sequnfold")
+    flattenLayer("Name","flatten")
+    lstmLayer(500,"Name","bilstm1")
+    fullyConnectedLayer(numResponses,"Name","fc_1")
+    %     fullyConnectedLayer(numResponses,"Name","fc_2")
+    dropoutLayer(0.5,"Name","dropout_2")
+    fullyConnectedLayer(numResponses,"Name","fc_3")
+    regressionLayer("Name","Output")];
+layers = addLayers(layers,tempLayers);
+
+layers = connectLayers(layers,"seqfold/out","conv_1");
+layers = connectLayers(layers,"seqfold/miniBatchSize","sequnfold/miniBatchSize");
+layers = connectLayers(layers,"elu","sequnfold/in");
+
+% -------------------------------------------------------------------------
+% Simple LSTM
+% -------------------------------------------------------------------------
+% tempLayers = [
+%     sequenceInputLayer(InputSize,"Name","sequence")
+%     flattenLayer("Name","flatten")
+%     lstmLayer(2000,"Name","lstm1")
+%     dropoutLayer(0.5,"Name","dropout_1")
+%     fullyConnectedLayer(250,"Name","fc_1")
+%     fullyConnectedLayer(numResponses,"Name","fc_2")
+%     regressionLayer("Name","Output")];
+%
+% layers = addLayers(layers,tempLayers);
+
+
 
 % Plot the network architecture
 FigHandle_04 = figure('Position', [100, 150, 350, 290]);
@@ -164,7 +226,7 @@ saveas(FigHandle_04,ModelSaveFile,'jpeg')
 clear FigHandle_04
 
 %%Setup training options
-miniBatchSize = 24;
+miniBatchSize = 28;
 numObservations = size(seqTrain,1);
 numIterationsPerEpoch = floor(numObservations / miniBatchSize);
 
@@ -172,7 +234,7 @@ options = trainingOptions('adam', ...
     'MiniBatchSize',miniBatchSize, ...
     'InitialLearnRate',1e-4, ...
     'ExecutionEnvironment','auto', ...
-    'MaxEpochs', 1000,...
+    'MaxEpochs', 10000,...
     'GradientThreshold',1, ...
     'Shuffle','every-epoch', ...
     'ValidationData',{seqTest,tarTest}, ...
