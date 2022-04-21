@@ -19,7 +19,7 @@
 %
 %   INITIALIZE CODE
 %   ----------------------------------------------------------------------------
-clc
+% clc
 close all
 
 tic
@@ -44,7 +44,7 @@ SPL_smooth1 = real(SPL_smooth);
 randNum = randi(size(SPL_smooth1,2),1);
 
 for i=1:size(Data,3)    
-[f0(:,i), idx(:,i)] = pitch(Data(:,1,10), SampleRate);
+[f0(:,i), idx(:,i)] = pitch(Data(:,1,1), SampleRate);
 end
 
 disp('pitch calculated');
@@ -161,7 +161,7 @@ tarTest  = target(1:TestSplit,:);
 InputSize = [size(sequences{1,1}),1];
 
 numResponses = size(target{1},1);
-clc
+% clc
 diary on
 layers = layerGraph();
 
@@ -226,15 +226,17 @@ saveas(FigHandle_04,ModelSaveFile,'jpeg')
 clear FigHandle_04
 
 %%Setup training options
-miniBatchSize = 28;
+if fromGit == true; miniBatchSize = 1; else; miniBatchSize = 28; end
 numObservations = size(seqTrain,1);
 numIterationsPerEpoch = floor(numObservations / miniBatchSize);
+
+if fromGit == true; MaxEpoch = 1000; else; MaxEpoch = 10000; end
 
 options = trainingOptions('adam', ...
     'MiniBatchSize',miniBatchSize, ...
     'InitialLearnRate',1e-4, ...
     'ExecutionEnvironment','auto', ...
-    'MaxEpochs', 10000,...
+    'MaxEpochs', MaxEpoch,...
     'GradientThreshold',1, ...
     'Shuffle','every-epoch', ...
     'ValidationData',{seqTest,tarTest}, ...

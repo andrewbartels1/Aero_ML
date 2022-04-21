@@ -27,7 +27,7 @@
 %
 %   INITIALIZE CODE
 %   ----------------------------------------------------------------------------
-clc
+% clc
 close all
 
 tic
@@ -97,7 +97,8 @@ switch(Case)
 end
 
 % Get all the files and make a file list. 
-fileList = glob(strcat(datDirectory,'*.dat'));
+datDirectory
+fileList = glob(strcat(datDirectory,filesep,'*.dat'))
 
 %   ----------------------------------------------------------------------------
 %

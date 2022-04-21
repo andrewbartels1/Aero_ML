@@ -50,14 +50,17 @@ tic
 %-------------------------------------------------------------------------------
 
 % Put the machine's home dir here!
-home = 'C:\Users\andrewbartels1';
+home = pwd;
+
+% if this is pulled right from the git without data this should be true or errors will happen
+fromGit = true; 
 
 % Setup file directories
-MWS_dir = '\Dropbox (CSU Fullerton)\EGME597_AB\ML_DATA\MWS\';
-ACC_dir = '\Dropbox (CSU Fullerton)\EGME597_AB\ML_DATA\ACC\';
-BOTH_dir = '\Dropbox (CSU Fullerton)\EGME597_AB\ML_DATA\BOTH\';
+MWS_dir = '/RAW/MWS/';
+ACC_dir = '/RAW/ACC/';
+BOTH_dir = '/RAW/BOTH/';
 
-calDirectory = '\Dropbox (CSU Fullerton)\EGME597_AB\CALIBRATION\sn442';                  %  calibration directory
+calDirectory = '/CALIBRATION/sn442';                  %  calibration directory
  
 % If you have a new folder put the directory of data to feed the LSTM, put
 % it here.
@@ -80,7 +83,7 @@ SaveFile = 'simple_LSTM_justmelFreq_coeffs2';
 %----------------------------------------------------------------------------
 
 % Set Case to use here:
-Case = 'ACC';
+Case = 'BOTH';
 
 switch(Case)
     case 'MWS'
