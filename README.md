@@ -55,8 +55,6 @@ RAW
     └── MLD200V40P68R4.dat
 ```
 
-
-
 # Dependancies
 This project repo is in MATLAB using the following dependencies:
 
@@ -76,5 +74,5 @@ Future work on this project will include the code transition into Python using K
 
 # License
 
-Copyright © 2019 [Andrew Bartels](https://github.com/kefranabg).<br />
+Copyright © 2019 [Andrew Bartels](https://github.com/andrewbartels1).<br />
 This project is [MIT](https://https://github.com/andrewbartels1/Aero_ML/LICENSE) licensed.
